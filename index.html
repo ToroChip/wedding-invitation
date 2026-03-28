@@ -3,33 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switch 2 Wedding - Solid Box (Fixed 2.1)</title>
+    <title>Switch 2 Wedding - Solid Box (Fixed)</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --ns-red: #e60012; 
             --ns-red-dark: #cc0010;
-            --case-depth: 40px; 
+            --case-depth: 40px; /* 加厚份量感 */
             --box-w: 400px;
             --box-h: 600px;
-            /* 預設彈出參數 (電腦版) */
-            --cart-pop-y: -320px;
-            --cart-scale: 1.4;
-        }
-
-        /* 手機版適配：縮減彈出距離與縮放 */
-        @media (max-width: 600px) {
-            :root {
-                --box-w: 280px;  /* 縮小盒子寬度 */
-                --box-h: 420px;  /* 縮小盒子高度 */
-                --case-depth: 25px;
-                --cart-pop-y: -160px; /* 彈出高度減半 */
-                --cart-scale: 1.05;   /* 幾乎不放大，確保留在螢幕內 */
-            }
-            #scene {
-                margin-top: 80px; /* 場景下移，預留上方彈出空間 */
-                transform: rotateX(-10deg) rotateY(20deg) scale(0.9);
-            }
         }
 
         body {
@@ -69,6 +51,7 @@
             backface-visibility: hidden;
         }
 
+        /* --- 封面容器：處理翻轉邏輯 --- */
         .face-front-container {
             position: absolute;
             width: 100%;
@@ -90,49 +73,60 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            z-index: 2;
+            z-index: 2; /* 在容器內處於前方 */
         }
 
-        /* 內頁修正 (2.0版本核心) */
+        /* --- 自訂內頁 (封面的背面) --- */
         .face-front-inside {
             position: absolute; 
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            /* 確保寬高與父容器(封面)完全一致 */
+            top: 0;
+            left: 0;
+            width: 100%; 
+            height: 100%;
             background: #e0e0e0; 
+            /* 關鍵：使用 border-box 確保 padding 不會撐大寬度 */
             box-sizing: border-box;
+            /* 修正旋轉：180度翻轉，並微調 translateZ 確保不與正面重疊(Z-fighting) */
             transform: rotateY(180deg) translateZ(0.5px); 
             backface-visibility: hidden; 
+            /* 圓角需與封面左側對稱 (翻開後變左側) */
             border-radius: 12px 0 0 12px;
             display: flex; 
             flex-direction: column;
-            padding: 5% 10%; /* 改用百分比 padding 以適應不同大小 */
+            padding: 40px;
             box-shadow: inset 10px 0 30px rgba(0,0,0,0.1);
             z-index: 1;
         }
 
-        .front-banner { height: 12%; background-color: var(--ns-red); display: flex; align-items: center; padding: 0 5%; color: white; }
-        .front-art { flex: 1; background: radial-gradient(circle at center, #fff 0%, #f0f0f0 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5%; text-align: center; }
+        .front-banner { height: 75px; background-color: var(--ns-red); display: flex; align-items: center; padding: 0 20px; color: white; }
+        .front-art { flex: 1; background: radial-gradient(circle at center, #fff 0%, #f0f0f0 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 
-        /* 殼結構 */
+        /* --- 紅色殼結構 --- */
         .side { position: absolute; background: var(--ns-red); border: none; backface-visibility: visible;}
         
         .side-spine {
-            width: var(--case-depth); height: 100%;
+            width: var(--case-depth);
+            height: 100%;
             background: var(--ns-red);
             left: 0;
             transform-origin: right center;
             transform: translateX(calc(var(--case-depth) * -1)) rotateY(-90deg);
-            display: flex; flex-direction: column; align-items: center; padding: 10% 0; color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+            color: white;
             box-shadow: inset -5px 0 15px rgba(0,0,0,0.2);
         }
         .spine-title {
             writing-mode: vertical-rl;
             text-orientation: mixed;
             font-size: 14px;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             font-weight: bold;
             flex-grow: 1;
-            margin: 5% 0;
+            margin: 25px 0;
         }
 
         .side-right {
@@ -145,16 +139,16 @@
         }
         .side-top {
             width: 100%; height: var(--case-depth);
-            top: 0;
+            top: 40px;
             transform-origin: top center;
-            transform: rotateX(270deg);
+            transform: rotateX(270deg) translateZ(calc(var(--case-depth) * -1));
             background: var(--ns-red);
         }
         .side-bottom {
             width: 100%; height: var(--case-depth);
-            bottom: 0;
+            bottom: 40px;
             transform-origin: bottom center;
-            transform: rotateX(90deg);
+            transform: rotateX(90deg) translateZ(calc(var(--case-depth) * -1));
             background: var(--ns-red-dark);
         }
 
@@ -162,12 +156,12 @@
             width: 100%; height: 100%;
             background: var(--ns-red);
             transform: translateZ(calc(var(--case-depth) * -1)) rotateY(180deg);
-            padding: 10% 8%;
+            padding: 40px 30px;
             border-radius: 12px 0 0 12px;
             display: flex; flex-direction: column; color: white;
         }
 
-        .screenshot-box { width: 100%; height: 18%; background: #1a1a1a; border: 3px solid #000; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; margin-bottom: 5%; box-shadow: 4px 4px 0px rgba(0,0,0,0.3); }
+        .screenshot-box { width: 100%; height: 100px; background: #1a1a1a; border: 4px solid #000; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; margin-bottom: 20px; box-shadow: 6px 6px 0px rgba(0,0,0,0.3); }
 
         .face-inner-base {
             width: 100%; height: 100%;
@@ -178,34 +172,33 @@
 
         .cartridge {
             position: absolute;
-            width: 70%; height: 32%;
+            width: 280px; height: 190px;
             background: #2a2a2a;
-            left: 15%; top: 38%;
+            left: 60px; top: 220px;
             border-radius: 10px;
             transform: translateZ(calc(var(--case-depth) * -0.8));
             transition: transform 0.6s 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 3%; z-index: 10; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            padding: 15px; z-index: 10; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
-        /* 動態使用變數處理彈出 */
         .open .cartridge {
-            transform: translateZ(300px) translateY(var(--cart-pop-y)) scale(var(--cart-scale)) rotateX(-5deg);
+            transform: translateZ(300px) translateY(-320px) scale(1.4) rotateX(-5deg);
             z-index: 200;
         }
         .v2-label { width: 100%; height: 100%; background: linear-gradient(135deg, var(--ns-red) 0%, #a00000 100%); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
 
+        /* 內頁裝飾樣式 */
         .inside-story {
             flex: 1;
             border: 2px dashed #aaa;
             border-radius: 8px;
-            margin-top: 5%;
-            padding: 5%;
+            margin-top: 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             background: rgba(255,255,255,0.5);
-            font-size: clamp(10px, 3vw, 14px);
         }
     </style>
 </head>
@@ -214,9 +207,9 @@
     <div id="scene">
         <div class="game-box" id="box">
             <div class="face side-spine">
-                <div class="spine-logo pixel-font" style="font-size: 14px;">S2</div>
-                <div class="spine-title pixel-font">WEDDING ADVENTURE</div>
-                <div style="font-size: 8px; opacity: 0.8; margin-top: auto;">06.27</div>
+                <div class="spine-logo pixel-font">S2</div>
+                <div class="spine-title pixel-font">OUR WEDDING ADVENTURE 2026.06.27</div>
+                <div style="font-size: 9px; opacity: 0.8; margin-top: auto;">LOVE-0627</div>
             </div>
             
             <div class="face side side-right"></div>
@@ -224,45 +217,64 @@
             <div class="face side side-bottom"></div>
 
             <div class="face face-back">
-                <div class="pixel-font" style="font-size: 10px; margin-bottom: 10px;">► MULTIPLAYER</div>
-                <div class="screenshot-box">Wedding Photo 01</div>
-                <div style="font-size: 11px; line-height: 1.8;">
+                <div class="pixel-font" style="font-size: 12px; margin-bottom: 15px;">► MULTIPLAYER</div>
+                <div class="screenshot-box">像素婚紗照 01</div>
+                <div class="screenshot-box" style="background: #111; height: 90px; font-size: 11px; padding: 20px; text-align: center;">
+                    「長達 3,000 天的冒險... 迎來婚禮！」
+                </div>
+                <div style="font-size: 13px; line-height: 2.2; margin-top: 20px;">
+                    <b style="color: #ffcccc;">【遊戲情報】</b><br>
                     • 遊玩人數： 2 人<br>
                     • 儲存類型： 永久心動<br>
                     • 支援語言： 繁體中文
                 </div>
+                <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-top: auto;">© 2026 LOVE STUDIO</div>
             </div>
 
             <div class="face face-inner-base"></div>
 
             <div class="cartridge" id="cart">
                 <div class="v2-label">
-                    <div class="pixel-font" style="font-size: clamp(14px, 4vw, 20px);">START</div>
-                    <div style="font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 2px 10px; border-radius: 20px; margin-top: 5px;">2026.06.27</div>
+                    <div class="pixel-font" style="font-size: 22px; margin-bottom: 10px;">START GAME</div>
+                    <div style="font-size: 16px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 5px 18px; border-radius: 25px;">2026.06.27</div>
+                    <div style="font-size: 13px; margin-top: 12px;">📍 新店彭園會館 1F</div>
                 </div>
             </div>
 
             <div class="face-front-container">
                 <div class="face-front-outside">
                     <div class="front-banner">
-                        <div class="pixel-font" style="font-size: 18px;">SWITCH 2</div>
+                        <div class="pixel-font" style="font-size: 22px;">
+                            <span style="border: 3px solid white; padding: 3px 10px; border-radius: 6px; margin-right: 12px;">S</span>WITCH 2
+                        </div>
                     </div>
                     <div class="front-art">
-                        <div class="pixel-font" style="font-size: 20px; color: var(--ns-red);">STAGE CLEAR!</div>
-                        <div style="font-size: 50px; margin: 15px 0;">🎮❤️💍</div>
-                        <div style="font-size: 18px; font-weight: 900;">勇者 & 歌姬</div>
+                        <div class="pixel-font" style="font-size: 12px; color: #aaa; margin-bottom: 10px;">WEDDING QUEST</div>
+                        <div class="pixel-font" style="font-size: 28px; color: var(--ns-red); line-height: 1.4;">STAGE CLEAR!<br>GET MARRIED</div>
+                        <div style="font-size: 70px; margin: 25px 0;">🎮❤️💍</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #333;">勇者 & 歌姬</div>
+                    </div>
+                    <div style="position: absolute; bottom: 30px; left: 30px; width: 55px; height: 55px; background: #1a1a1a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;">
+                        <span style="font-size: 8px;">LOVE</span><span style="font-size: 20px; font-weight: bold;">99+</span>
+                    </div>
+                    <div style="position: absolute; bottom: 30px; right: 30px; text-align: right;">
+                        <div style="width: 70px; height: 45px; background: #000; color: white; display: flex; align-items: center; justify-content: center; font-size: 9px;">QR</div>
+                        <div class="pixel-font" style="font-size: 8px; color: #333; margin-top: 6px;">RSVP</div>
                     </div>
                 </div>
 
                 <div class="face-front-inside">
-                    <div class="pixel-font" style="font-size: 16px; color: var(--ns-red); text-align: center;">PLAYER INFO</div>
+                    <div class="pixel-font" style="font-size: 18px; color: var(--ns-red); text-align: center;">PLAYER INFO</div>
                     <div class="inside-story">
-                        <div style="color: #444; line-height: 1.6; text-align: center;">
-                            <p><b>勇者 (Groom)</b><br>IT / System Admin</p>
-                            <p><b>歌姬 (Bride)</b><br>Heroine</p>
-                            <hr style="width: 100%; border: 0; border-top: 1px solid #ccc; margin: 5px 0;">
-                            <p style="font-size: 11px;">冒險正式開始...</p>
+                        <div style="font-size: 14px; color: #444; line-height: 1.8; text-align: center;">
+                            <p><b>勇者 (Groom)</b><br>專長：維修伺服器、寫 Code</p>
+                            <p><b>歌姬 (Bride)</b><br>專長：拯救勇者的心情</p>
+                            <hr style="width: 100%; border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
+                            <p style="font-size: 12px;">這是一段從 20XX 年開始的<br>長途冒險...</p>
                         </div>
+                    </div>
+                    <div class="pixel-font" style="font-size: 10px; color: #999; margin-top: 20px; text-align: center;">
+                        INSERT COIN TO CONTINUE
                     </div>
                 </div>
             </div>
@@ -277,21 +289,21 @@
 
         const startAction = (e) => {
             isDragging = true;
-            startX = (e.pageX || e.touches?.[0].pageX);
-            startY = (e.pageY || e.touches?.[0].pageY);
+            startX = e.pageX || (e.touches ? e.touches[0].pageX : 0);
+            startY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
             moveDist = 0;
             if(isOpened) isDragging = false;
         };
 
         const moveAction = (e) => {
             if (!isDragging) return;
-            const x = (e.pageX || e.touches?.[0].pageX);
-            const y = (e.pageY || e.touches?.[0].pageY);
+            const x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
+            const y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
             const dx = x - startX, dy = y - startY;
             moveDist += Math.abs(dx) + Math.abs(dy);
             rotateY += dx * 0.5; rotateX -= dy * 0.5;
             rotateX = Math.max(-30, Math.min(30, rotateX));
-            scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${window.innerWidth < 600 ? 'scale(0.9)' : ''}`;
+            scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             startX = x; startY = y;
         };
 
@@ -302,7 +314,7 @@
             if (isOpened) {
                 box.classList.add('open');
                 rotateX = 0; rotateY = 20;
-                scene.style.transform = `rotateX(0deg) rotateY(20deg) ${window.innerWidth < 600 ? 'scale(0.9)' : ''}`;
+                scene.style.transform = `rotateX(0deg) rotateY(20deg)`;
             } else { box.classList.remove('open'); }
         }
 
