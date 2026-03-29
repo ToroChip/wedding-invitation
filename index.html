@@ -161,7 +161,22 @@
             display: flex; flex-direction: column; color: white;
         }
 
-        .screenshot-box { width: 100%; height: 100px; background: #1a1a1a; border: 4px solid #000; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; margin-bottom: 20px; box-shadow: 6px 6px 0px rgba(0,0,0,0.3); }
+        .screenshot-box { 
+		  width: 100%;
+		  height: 100px;
+		  background: #1a1a1a;
+		  border: 4px solid #000;
+		  display: flex;
+		  align-items: center;
+		  justify-content: center;
+		  font-size: 11px;
+		  color: #888;
+		  margin-bottom: 20px;
+		  box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+		  background-size: cover;     /* 關鍵 1：讓圖片縮放到剛好填滿盒子，不留白 */
+            background-position: center;  /* 關鍵 2：讓圖片對齊中心，確保主角在中間 */
+            background-repeat: no-repeat; /* 防止圖片太小時重複出現 */
+	}
 
         .face-inner-base {
             width: 100%; height: 100%;
@@ -208,7 +223,7 @@
         <div class="game-box" id="box">
             <div class="face side-spine">
                 <div class="spine-logo pixel-font">S2</div>
-                <div class="spine-title pixel-font">OUR WEDDING ADVENTURE 2026.06.27</div>
+                <div class="spine-title pixel-font">OUR WEDDING ADVENTURE</div>
                 <div style="font-size: 9px; opacity: 0.8; margin-top: auto;">LOVE-0627</div>
             </div>
             
@@ -218,10 +233,8 @@
 
             <div class="face face-back">
                 <div class="pixel-font" style="font-size: 12px; margin-bottom: 15px;">► MULTIPLAYER</div>
-                <div class="screenshot-box">像素婚紗照 01</div>
-                <div class="screenshot-box" style="background: #111; height: 90px; font-size: 11px; padding: 20px; text-align: center;">
-                    「長達 3,000 天的冒險... 迎來婚禮！」
-                </div>
+			 <div class="screenshot-box" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding-photo.png'); color: transparent;">像素婚紗照 01</div>
+			 <div class="screenshot-box" style="background: #111; height: auto; min-height: 90px; font-size: 11px; padding: 20px 0; text-align: center;">「長達 3 年的冒險... 迎來新的挑戰！」</div>
                 <div style="font-size: 13px; line-height: 2.2; margin-top: 20px;">
                     <b style="color: #ffcccc;">【遊戲情報】</b><br>
                     • 遊玩人數： 2 人<br>
@@ -270,7 +283,7 @@
                             <p><b>勇者 (Groom)</b><br>專長：維修伺服器、寫 Code</p>
                             <p><b>歌姬 (Bride)</b><br>專長：拯救勇者的心情</p>
                             <hr style="width: 100%; border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
-                            <p style="font-size: 12px;">這是一段從 20XX 年開始的<br>長途冒險...</p>
+                            <p style="font-size: 12px;">這是一段從 2022 年底開始的長途冒險...<br>經過長期的練等與冒險，我們決定共組家庭，<br>開啟人生下一階段的全新副本！</p>
                         </div>
                     </div>
                     <div class="pixel-font" style="font-size: 10px; color: #999; margin-top: 20px; text-align: center;">
