@@ -95,7 +95,7 @@
         .front-banner { height: 75px; background-color: var(--ns-red); display: flex; align-items: center; padding: 0 20px; color: white; }
         .front-art { flex: 1; background: radial-gradient(circle at center, #fff 0%, #f0f0f0 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 
-        /* --- 紅色殼結構修正 --- */
+        /* --- 紅色殼結構 --- */
         .side-spine {
             width: var(--case-depth); height: 100%;
             background: var(--ns-red); left: 0;
@@ -121,7 +121,6 @@
             backface-visibility: visible;
         }
         
-        /* 修正：頂部與底部改用 translateZ 確保與殼體對齊 */
         .side-top { 
             width: 100%; height: var(--case-depth); top: 0; 
             transform-origin: top center; 
@@ -158,9 +157,14 @@
         }
 
         .face-inner-base {
-            width: 100%; height: 100%;
-            background: #1a1a1a;
-            transform: translateZ(calc(var(--case-depth) * -0.99));
+            width: 100%; 
+            height: 100%;
+            background-color: #1a1a1a; 
+            background-size: cover;    
+            background-position: center; 
+            background-repeat: no-repeat;
+            /* 微調後退一點點，避免與卡帶閃爍 */
+            transform: translateZ(calc(var(--case-depth) * -0.999));
             border-radius: 0 12px 12px 0;
         }
 
@@ -180,7 +184,6 @@
             z-index: 200;
         }
         
-        /* 手機版額外修正：避免卡帶衝出螢幕 */
         @media (max-width: 600px) {
             .open .cartridge {
                 transform: translateZ(250px) translateY(-220px) scale(1.1) rotateX(-5deg) !important;
@@ -225,8 +228,8 @@
                 <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-top: auto;">© 2026 LOVE STUDIO</div>
             </div>
 
-            <div class="face face-inner-base"></div>
-
+            <div class="face face-inner-base" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding-photo.png');"></div>
+            
             <div class="cartridge" id="cart">
                 <div class="v2-label">
                     <div class="pixel-font" style="font-size: 22px; margin-bottom: 10px;">START GAME</div>
@@ -277,7 +280,6 @@
         let isDragging = false, isOpened = false;
         let startX, startY, rotateX = -10, rotateY = 20, moveDist = 0;
 
-        // 手機版動態縮放：以 450px 為基準寬度進行計算
         function getScale() {
             const screenWidth = window.innerWidth;
             if (screenWidth < 600) {
@@ -286,7 +288,6 @@
             return 1;
         }
 
-        // 統一更新 transform 的函式，合併 scale 與 rotate
         function updateTransform() {
             const scale = getScale();
             scene.style.transform = `scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
@@ -329,9 +330,7 @@
             updateTransform();
         }
 
-        // 監聽視窗縮放
         window.addEventListener('resize', updateTransform);
-
         window.addEventListener('mousedown', startAction);
         window.addEventListener('mousemove', moveAction);
         window.addEventListener('mouseup', endAction);
@@ -339,7 +338,6 @@
         window.addEventListener('touchmove', moveAction, {passive: false});
         window.addEventListener('touchend', endAction);
         
-        // 初始化
         updateTransform();
     </script>
 </body>
