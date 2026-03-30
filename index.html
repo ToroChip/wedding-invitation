@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switch 2 Wedding - Solid Box (Fixed)</title>
+    <title>Switch 2 our Wedding </title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --ns-red: #e60012; 
             --ns-red-dark: #cc0010;
-            --case-depth: 40px; /* 加厚份量感 */
+            --case-depth: 40px; 
             --box-w: 400px;
             --box-h: 600px;
         }
@@ -25,6 +25,7 @@
             overflow: hidden;
             perspective: 3500px; 
             user-select: none;
+            touch-action: none; /* 防止手機拖曳時畫面跳動 */
         }
 
         .pixel-font { font-family: 'Press Start 2P', cursive; }
@@ -33,7 +34,7 @@
             width: var(--box-w);
             height: var(--box-h);
             transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.15s ease-out;
             transform: rotateX(-10deg) rotateY(20deg);
         }
 
@@ -51,18 +52,17 @@
             backface-visibility: hidden;
         }
 
-        /* --- 封面容器：處理翻轉邏輯 --- */
+        /* --- 封面容器 --- */
         .face-front-container {
             position: absolute;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
             transform-origin: left center;
-            transform: translateZ(0px); 
             transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100;
         }
-        .open .face-front-container { transform: rotateY(-155deg) translateZ(0px); }
+        .open .face-front-container { transform: rotateY(-155deg); }
 
         .face-front-outside {
             position: absolute;
@@ -73,24 +73,17 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            z-index: 2; /* 在容器內處於前方 */
+            z-index: 2;
         }
 
-        /* --- 自訂內頁 (封面的背面) --- */
         .face-front-inside {
             position: absolute; 
-            /* 確保寬高與父容器(封面)完全一致 */
-            top: 0;
-            left: 0;
-            width: 100%; 
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: #e0e0e0; 
-            /* 關鍵：使用 border-box 確保 padding 不會撐大寬度 */
             box-sizing: border-box;
-            /* 修正旋轉：180度翻轉，並微調 translateZ 確保不與正面重疊(Z-fighting) */
-            transform: rotateY(180deg) translateZ(0.5px); 
+            transform: rotateY(180deg) translateZ(1px); 
             backface-visibility: hidden; 
-            /* 圓角需與封面左側對稱 (翻開後變左側) */
             border-radius: 12px 0 0 12px;
             display: flex; 
             flex-direction: column;
@@ -102,54 +95,46 @@
         .front-banner { height: 75px; background-color: var(--ns-red); display: flex; align-items: center; padding: 0 20px; color: white; }
         .front-art { flex: 1; background: radial-gradient(circle at center, #fff 0%, #f0f0f0 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 
-        /* --- 紅色殼結構 --- */
-        .side { position: absolute; background: var(--ns-red); border: none; backface-visibility: visible;}
-        
+        /* --- 紅色殼結構修正 --- */
         .side-spine {
-            width: var(--case-depth);
-            height: 100%;
-            background: var(--ns-red);
-            left: 0;
+            width: var(--case-depth); height: 100%;
+            background: var(--ns-red); left: 0;
             transform-origin: right center;
             transform: translateX(calc(var(--case-depth) * -1)) rotateY(-90deg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 0;
-            color: white;
+            display: flex; flex-direction: column; align-items: center; padding: 40px 0; color: white;
             box-shadow: inset -5px 0 15px rgba(0,0,0,0.2);
+            backface-visibility: visible;
         }
         .spine-title {
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            font-size: 14px;
-            letter-spacing: 4px;
-            font-weight: bold;
-            flex-grow: 1;
-            margin: 25px 0;
+            font-size: 14px; letter-spacing: 4px; font-weight: bold;
+            flex-grow: 1; margin: 25px 0;
         }
 
-        .side-right {
-            width: var(--case-depth); height: 100%;
-            right: 0;
-            transform-origin: left center;
-            transform: translateX(var(--case-depth)) rotateY(90deg);
-            background: var(--ns-red-dark);
+        .side-right { 
+            width: var(--case-depth); height: 100%; right: 0; 
+            transform-origin: left center; 
+            transform: translateX(var(--case-depth)) rotateY(90deg); 
+            background: var(--ns-red-dark); 
             box-shadow: inset 10px 0 20px rgba(0,0,0,0.3);
+            backface-visibility: visible;
         }
-        .side-top {
-            width: 100%; height: var(--case-depth);
-            top: 40px;
-            transform-origin: top center;
-            transform: rotateX(270deg) translateZ(calc(var(--case-depth) * -1));
+        
+        /* 修正：頂部與底部改用 translateZ 確保與殼體對齊 */
+        .side-top { 
+            width: 100%; height: var(--case-depth); top: 0; 
+            transform-origin: top center; 
+            transform: rotateX(-90deg); 
             background: var(--ns-red);
+            backface-visibility: visible;
         }
-        .side-bottom {
-            width: 100%; height: var(--case-depth);
-            bottom: 40px;
-            transform-origin: bottom center;
-            transform: rotateX(90deg) translateZ(calc(var(--case-depth) * -1));
+        .side-bottom { 
+            width: 100%; height: var(--case-depth); bottom: 0; 
+            transform-origin: bottom center; 
+            transform: rotateX(90deg); 
             background: var(--ns-red-dark);
+            backface-visibility: visible;
         }
 
         .face-back {
@@ -162,21 +147,15 @@
         }
 
         .screenshot-box { 
-		  width: 100%;
-		  height: 100px;
-		  background: #1a1a1a;
-		  border: 4px solid #000;
-		  display: flex;
-		  align-items: center;
-		  justify-content: center;
-		  font-size: 11px;
-		  color: #888;
-		  margin-bottom: 20px;
-		  box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
-		  background-size: cover;     /* 關鍵 1：讓圖片縮放到剛好填滿盒子，不留白 */
-            background-position: center;  /* 關鍵 2：讓圖片對齊中心，確保主角在中間 */
-            background-repeat: no-repeat; /* 防止圖片太小時重複出現 */
-	}
+            width: 100%; height: 100px;
+            background: #1a1a1a;
+            border: 4px solid #000;
+            margin-bottom: 20px;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
 
         .face-inner-base {
             width: 100%; height: 100%;
@@ -189,7 +168,7 @@
             position: absolute;
             width: 280px; height: 190px;
             background: #2a2a2a;
-            left: 60px; top: 220px;
+            left: calc(50% - 140px); top: 220px;
             border-radius: 10px;
             transform: translateZ(calc(var(--case-depth) * -0.8));
             transition: transform 0.6s 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -197,22 +176,22 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
         .open .cartridge {
-            transform: translateZ(300px) translateY(-320px) scale(1.4) rotateX(-5deg);
+            transform: translateZ(350px) translateY(-320px) scale(1.4) rotateX(-5deg);
             z-index: 200;
         }
+        
+        /* 手機版額外修正：避免卡帶衝出螢幕 */
+        @media (max-width: 600px) {
+            .open .cartridge {
+                transform: translateZ(250px) translateY(-220px) scale(1.1) rotateX(-5deg) !important;
+            }
+        }
+
         .v2-label { width: 100%; height: 100%; background: linear-gradient(135deg, var(--ns-red) 0%, #a00000 100%); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
 
-        /* 內頁裝飾樣式 */
         .inside-story {
-            flex: 1;
-            border: 2px dashed #aaa;
-            border-radius: 8px;
-            margin-top: 20px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            flex: 1; border: 2px dashed #aaa; border-radius: 8px; margin-top: 20px; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             background: rgba(255,255,255,0.5);
         }
     </style>
@@ -227,14 +206,16 @@
                 <div style="font-size: 9px; opacity: 0.8; margin-top: auto;">LOVE-0627</div>
             </div>
             
-            <div class="face side side-right"></div>
-            <div class="face side side-top"></div>
-            <div class="face side side-bottom"></div>
+            <div class="face side-right"></div>
+            <div class="face side-top"></div>
+            <div class="face side-bottom"></div>
 
             <div class="face face-back">
                 <div class="pixel-font" style="font-size: 12px; margin-bottom: 15px;">► MULTIPLAYER</div>
-			 <div class="screenshot-box" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding-photo.png'); color: transparent;">像素婚紗照 01</div>
-			 <div class="screenshot-box" style="background: #111; height: auto; min-height: 90px; font-size: 11px; padding: 20px 0; text-align: center;">「長達 3 年的冒險... 迎來新的挑戰！」</div>
+                <div class="screenshot-box" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding-photo.png');"></div>
+                <div class="screenshot-box" style="background: #111; height: auto; min-height: 90px; font-size: 11px; padding: 20px 0; text-align: center; display: flex; align-items: center; justify-content: center;">
+                    「長達 3 年的冒險... 迎來新的挑戰！」
+                </div>
                 <div style="font-size: 13px; line-height: 2.2; margin-top: 20px;">
                     <b style="color: #ffcccc;">【遊戲情報】</b><br>
                     • 遊玩人數： 2 人<br>
@@ -270,10 +251,6 @@
                     <div style="position: absolute; bottom: 30px; left: 30px; width: 55px; height: 55px; background: #1a1a1a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;">
                         <span style="font-size: 8px;">LOVE</span><span style="font-size: 20px; font-weight: bold;">99+</span>
                     </div>
-                    <div style="position: absolute; bottom: 30px; right: 30px; text-align: right;">
-                        <div style="width: 70px; height: 45px; background: #000; color: white; display: flex; align-items: center; justify-content: center; font-size: 9px;">QR</div>
-                        <div class="pixel-font" style="font-size: 8px; color: #333; margin-top: 6px;">RSVP</div>
-                    </div>
                 </div>
 
                 <div class="face-front-inside">
@@ -283,7 +260,7 @@
                             <p><b>勇者 (Groom)</b><br>專長：維修伺服器、寫 Code</p>
                             <p><b>歌姬 (Bride)</b><br>專長：拯救勇者的心情</p>
                             <hr style="width: 100%; border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
-                            <p style="font-size: 12px;">這是一段從 2022 年底開始的長途冒險...<br>經過長期的練等與冒險，我們決定共組家庭，<br>開啟人生下一階段的全新副本！</p>
+                            <p style="font-size: 12px;">這是一段從 2022 年底開始的長途冒險...<br>經過練等與冒險，我們決定共組家庭，<br>開啟人生下一階段的全新副本！</p>
                         </div>
                     </div>
                     <div class="pixel-font" style="font-size: 10px; color: #999; margin-top: 20px; text-align: center;">
@@ -300,36 +277,60 @@
         let isDragging = false, isOpened = false;
         let startX, startY, rotateX = -10, rotateY = 20, moveDist = 0;
 
+        // 手機版動態縮放：以 450px 為基準寬度進行計算
+        function getScale() {
+            const screenWidth = window.innerWidth;
+            if (screenWidth < 600) {
+                return Math.min(0.85, (screenWidth / 450));
+            }
+            return 1;
+        }
+
+        // 統一更新 transform 的函式，合併 scale 與 rotate
+        function updateTransform() {
+            const scale = getScale();
+            scene.style.transform = `scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        }
+
         const startAction = (e) => {
             isDragging = true;
-            startX = e.pageX || (e.touches ? e.touches[0].pageX : 0);
-            startY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+            startX = (e.pageX || e.touches?.[0].pageX);
+            startY = (e.pageY || e.touches?.[0].pageY);
             moveDist = 0;
             if(isOpened) isDragging = false;
         };
 
         const moveAction = (e) => {
             if (!isDragging) return;
-            const x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
-            const y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+            const x = (e.pageX || e.touches?.[0].pageX);
+            const y = (e.pageY || e.touches?.[0].pageY);
             const dx = x - startX, dy = y - startY;
             moveDist += Math.abs(dx) + Math.abs(dy);
             rotateY += dx * 0.5; rotateX -= dy * 0.5;
-            rotateX = Math.max(-30, Math.min(30, rotateX));
-            scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            rotateX = Math.max(-35, Math.min(35, rotateX));
+            updateTransform();
             startX = x; startY = y;
         };
 
-        const endAction = () => { isDragging = false; if (moveDist < 10) toggleBox(); };
+        const endAction = () => { 
+            isDragging = false; 
+            if (moveDist < 10) toggleBox(); 
+        };
 
         function toggleBox() {
             isOpened = !isOpened;
             if (isOpened) {
                 box.classList.add('open');
                 rotateX = 0; rotateY = 20;
-                scene.style.transform = `rotateX(0deg) rotateY(20deg)`;
-            } else { box.classList.remove('open'); }
+            } else {
+                box.classList.remove('open');
+                rotateX = -10; rotateY = 20;
+            }
+            updateTransform();
         }
+
+        // 監聽視窗縮放
+        window.addEventListener('resize', updateTransform);
 
         window.addEventListener('mousedown', startAction);
         window.addEventListener('mousemove', moveAction);
@@ -337,6 +338,9 @@
         window.addEventListener('touchstart', startAction, {passive: false});
         window.addEventListener('touchmove', moveAction, {passive: false});
         window.addEventListener('touchend', endAction);
+        
+        // 初始化
+        updateTransform();
     </script>
 </body>
 </html>
