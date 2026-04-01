@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Switch 2 our Wedding</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch 2 our Wedding </title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -34,9 +34,8 @@
             width: var(--box-w);
             height: var(--box-h);
             transform-style: preserve-3d;
-            transition: transform 0.2s ease-out; /* 縮放時更平滑 */
+            transition: transform 0.15s ease-out;
             transform: rotateX(-10deg) rotateY(20deg);
-            transform-origin: center center;
         }
 
         .game-box {
@@ -53,7 +52,6 @@
             backface-visibility: hidden;
         }
 
-        /* --- 封面容器 --- */
         .face-front-container {
             position: absolute;
             width: 100%;
@@ -77,6 +75,28 @@
             z-index: 2;
         }
 
+        /* --- QR Code 樣式 --- */
+        .front-qr {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            padding: 5px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .front-qr img {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated; /* 讓QR Code看起來更數位風格 */
+        }
+
         .face-front-inside {
             position: absolute; 
             top: 0; left: 0;
@@ -96,24 +116,6 @@
         .front-banner { height: 75px; background-color: var(--ns-red); display: flex; align-items: center; padding: 0 20px; color: white; }
         .front-art { flex: 1; background: radial-gradient(circle at center, #fff 0%, #f0f0f0 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 
-        /* QR Code 樣式 */
-        .front-qr {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 80px;
-            height: 80px;
-            background: #fff;
-            padding: 5px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .front-qr img { width: 100%; height: 100%; }
-
-        /* --- 殼結構 --- */
         .side-spine {
             width: var(--case-depth); height: 100%;
             background: var(--ns-red); left: 0;
@@ -130,7 +132,7 @@
             flex-grow: 1; margin: 25px 0;
         }
 
-        .side-right { width: var(--case-depth); height: 100%; right: 0; transform-origin: left center; transform: translateX(var(--case-depth)) rotateY(90deg); background: var(--ns-red-dark); backface-visibility: visible; }
+        .side-right { width: var(--case-depth); height: 100%; right: 0; transform-origin: left center; transform: translateX(var(--case-depth)) rotateY(90deg); background: var(--ns-red-dark); box-shadow: inset 10px 0 20px rgba(0,0,0,0.3); backface-visibility: visible; }
         .side-top { width: 100%; height: var(--case-depth); top: 0; transform-origin: top center; transform: rotateX(-90deg); background: var(--ns-red); backface-visibility: visible; }
         .side-bottom { width: 100%; height: var(--case-depth); bottom: 0; transform-origin: bottom center; transform: rotateX(90deg); background: var(--ns-red-dark); backface-visibility: visible; }
 
@@ -151,6 +153,7 @@
             box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
         }
 
         .face-inner-base {
@@ -158,6 +161,7 @@
             background-color: #1a1a1a; 
             background-size: cover; 
             background-position: center; 
+            background-repeat: no-repeat;
             transform: translateZ(calc(var(--case-depth) * -0.999));
             border-radius: 0 12px 12px 0;
         }
@@ -176,6 +180,12 @@
         .open .cartridge {
             transform: translateZ(350px) translateY(-320px) scale(1.4) rotateX(-5deg);
             z-index: 200;
+        }
+        
+        @media (max-width: 600px) {
+            .open .cartridge {
+                transform: translateZ(250px) translateY(-220px) scale(1.1) rotateX(-5deg) !important;
+            }
         }
 
         .v2-label { width: 100%; height: 100%; background: linear-gradient(135deg, var(--ns-red) 0%, #a00000 100%); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
@@ -243,23 +253,22 @@
                         <span style="font-size: 8px;">LOVE</span><span style="font-size: 20px; font-weight: bold;">99+</span>
                     </div>
                     <div class="front-qr">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com/ToroChip/wedding-invitation" alt="Wedding QR">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com/ToroChip/wedding-invitation" alt="QR Code">
                     </div>
                 </div>
 
                 <div class="face-front-inside">
                     <div class="pixel-font" style="font-size: 18px; color: var(--ns-red); text-align: center;">PLAYER INFO</div>
                     <div class="inside-story">
-                        <div style="font-size: 14px; color: #444; line-height: 1.6; text-align: center;">
-                            <p><b style="color: var(--ns-red);">勇者 (Groom)</b><br>技能：【家具組裝大師】、【精準導航】、【負重型坦克】</p>
-                            <p><b style="color: var(--ns-red);">歌姬 (Bride)</b><br>技能：【絕對領域：食界】、【靈魂頌歌】、【神聖契約】</p>
+                        <div style="font-size: 14px; color: #444; line-height: 1.8; text-align: center;">
+                            <p><b>Player 1 (Groom)</b><br>角色技能：【家具組裝大師】 (IKEA Conqueror)：無視說明書的複雜度，能獨自修復所有鬆動的螺絲與搖晃的椅子。</p>
+                            <p><b>Player 2 (Bride)</b><br>角色技能：【絕對領域：食界】(Culinary Domain)：能與勇者共同發動「空廚料理」組合技，製作出治癒心靈的美味。</p>
                             <hr style="width: 100%; border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
-                            <p style="font-size: 12px; color: #666;">這是一段從 2022 年底開始的冒險...<br>我們決定共組家庭，開啟人生新副本！</p>
+                            <p style="font-size: 12px;">這是一段從 2022 年底開始的長途冒險...<br>經過練等與冒險，我們決定共組家庭，<br>開啟人生下一階段的全新副本！</p>
                         </div>
                     </div>
                     <div class="pixel-font" style="font-size: 10px; color: #999; margin-top: 20px; text-align: center;">
                         INSERT COIN TO CONTINUE
-                        <p style="font-size: 7px; opacity: 0.5; margin-top: 5px;">Double tap to zoom</p>
                     </div>
                 </div>
             </div>
@@ -271,11 +280,8 @@
         const box = document.getElementById('box');
         let isDragging = false, isOpened = false;
         let startX, startY, rotateX = -10, rotateY = 20, moveDist = 0;
-        
-        // 使用者手動縮放比例
-        let userScale = 1; 
 
-        function getBaseScale() {
+        function getScale() {
             const screenWidth = window.innerWidth;
             if (screenWidth < 600) {
                 return Math.min(0.85, (screenWidth / 450));
@@ -284,30 +290,16 @@
         }
 
         function updateTransform() {
-            const finalScale = getBaseScale() * userScale;
-            scene.style.transform = `scale(${finalScale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            const scale = getScale();
+            scene.style.transform = `scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         }
-
-        // 雙擊縮放邏輯
-        let lastTap = 0;
-        const handleDoubleTap = (e) => {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            if (tapLength < 300 && tapLength > 0) {
-                userScale = (userScale === 1) ? 1.5 : 1; 
-                updateTransform();
-                e.preventDefault();
-            }
-            lastTap = currentTime;
-        };
 
         const startAction = (e) => {
             isDragging = true;
             startX = (e.pageX || e.touches?.[0].pageX);
             startY = (e.pageY || e.touches?.[0].pageY);
             moveDist = 0;
-            // 開盒後鎖定旋轉，但允許縮放
-            if(isOpened) isDragging = false; 
+            if(isOpened) isDragging = false;
         };
 
         const moveAction = (e) => {
@@ -322,7 +314,7 @@
             startX = x; startY = y;
         };
 
-        const endAction = (e) => { 
+        const endAction = () => { 
             isDragging = false; 
             if (moveDist < 10) toggleBox(); 
         };
@@ -335,7 +327,6 @@
             } else {
                 box.classList.remove('open');
                 rotateX = -10; rotateY = 20;
-                userScale = 1; // 關盒時自動縮回原樣
             }
             updateTransform();
         }
@@ -344,13 +335,9 @@
         window.addEventListener('mousedown', startAction);
         window.addEventListener('mousemove', moveAction);
         window.addEventListener('mouseup', endAction);
-        
         window.addEventListener('touchstart', startAction, {passive: false});
         window.addEventListener('touchmove', moveAction, {passive: false});
-        window.addEventListener('touchend', (e) => {
-            handleDoubleTap(e);
-            endAction(e);
-        });
+        window.addEventListener('touchend', endAction);
         
         updateTransform();
     </script>
