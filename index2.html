@@ -278,86 +278,139 @@
     <script>
 const scene = document.getElementById('scene');
 const box = document.getElementById('box');
-let isDragging = false, isOpened = false;
-let startX, startY, rotateX = -10, rotateY = 20, moveDist = 0;
+let isOpened = false;
 
-// 新增：開合狀態的額外縮放倍率
-let openScale = 1; 
+// 變換數值
+let rotateX = -10, rotateY = 20;
+let translateX = 0, translateY = 0;
+let userScale = 1;
 
+// 狀態追蹤
+let isDragging = false;
+let startX, startY;
+let initialPinchDist = 0;
+let initialScale = 1;
+
+// 基礎縮放（適配不同螢幕）
 function getBaseScale() {
     const screenWidth = window.innerWidth;
-    // 基礎縮放邏輯（針對手機版進行初步適配）
-    if (screenWidth < 600) {
-        return Math.min(0.85, (screenWidth / 450));
-    }
-    return 1;
+    return screenWidth < 600 ? Math.min(0.85, (screenWidth / 450)) : 1;
 }
 
 function updateTransform() {
-    // 最終倍率 = 視窗基礎縮放 * 開合狀態縮放
-    const finalScale = getBaseScale() * openScale;
-    scene.style.transform = `scale(${finalScale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    const base = getBaseScale();
+    // 組合所有變換：基礎縮放 * 使用者縮放 + 位移 + 旋轉
+    scene.style.transform = `
+        scale(${base * userScale}) 
+        translate3d(${translateX}px, ${translateY}px, 0)
+        rotateX(${rotateX}deg) 
+        rotateY(${rotateY}deg)
+    `;
 }
+
+// 計算兩指間距
+const getPinchDist = (touches) => {
+    return Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+};
 
 const startAction = (e) => {
     isDragging = true;
-    startX = (e.pageX || e.touches?.[0].pageX);
-    startY = (e.pageY || e.touches?.[0].pageY);
-    moveDist = 0;
-    // 開盒後鎖定旋轉，讓賓客專心看內容
-    if(isOpened) isDragging = false;
+    const touches = e.touches;
+
+    if (touches && touches.length === 2) {
+        // 雙指縮放開始
+        initialPinchDist = getPinchDist(touches);
+        initialScale = userScale;
+    } else {
+        // 單指開始
+        startX = (e.pageX || touches?.[0].pageX);
+        startY = (e.pageY || touches?.[0].pageY);
+    }
 };
 
 const moveAction = (e) => {
     if (!isDragging) return;
-    const x = (e.pageX || e.touches?.[0].pageX);
-    const y = (e.pageY || e.touches?.[0].pageY);
-    const dx = x - startX, dy = y - startY;
-    moveDist += Math.abs(dx) + Math.abs(dy);
-    rotateY += dx * 0.5; rotateX -= dy * 0.5;
-    rotateX = Math.max(-35, Math.min(35, rotateX));
+    const touches = e.touches;
+
+    if (touches && touches.length === 2) {
+        // --- 雙指縮放邏輯 ---
+        const currentDist = getPinchDist(touches);
+        const diff = currentDist / initialPinchDist;
+        userScale = Math.max(0.5, Math.min(3, initialScale * diff)); // 限制縮放範圍 0.5x ~ 3x
+    } else {
+        // --- 單指邏輯 ---
+        const x = (e.pageX || touches?.[0].pageX);
+        const y = (e.pageY || touches?.[0].pageY);
+        const dx = x - startX;
+        const dy = y - startY;
+
+        if (isOpened) {
+            // 開盒後：平移 (平移量根據縮放比例調整，讓拖動感更自然)
+            translateX += dx / userScale;
+            translateY += dy / userScale;
+        } else {
+            // 關盒時：旋轉
+            rotateY += dx * 0.5;
+            rotateX -= dy * 0.5;
+            rotateX = Math.max(-35, Math.min(35, rotateX));
+        }
+        startX = x;
+        startY = y;
+    }
     updateTransform();
-    startX = x; startY = y;
 };
 
-const endAction = () => { 
-    isDragging = false; 
-    if (moveDist < 10) toggleBox(); 
+const endAction = (e) => {
+    if (e.touches && e.touches.length > 0) {
+        // 如果還有一隻手指在上面，重置起始點避免跳動
+        startX = e.touches[0].pageX;
+        startY = e.touches[0].pageY;
+        return;
+    }
+    isDragging = false;
+    // 點擊判定（位移極小時觸發開關）
+    // 這裡我們簡化處理，實際點擊開關交給 box 的 click 事件或特定按鈕
 };
 
+// 為了避免拖動與點擊衝突，我們把 toggleBox 綁定在特定的點擊邏輯上
 function toggleBox() {
     isOpened = !isOpened;
-    const screenWidth = window.innerWidth;
-
     if (isOpened) {
         box.classList.add('open');
-        rotateX = 0; 
-        rotateY = 20;
-        
-        // 如果是手機（寬度小於 600px），開盒後自動拉遠到 0.55 倍
-        // 這樣左右寬度加起來（約 800px）在手機上也能看全
-        if (screenWidth < 600) {
-            openScale = 0.55; 
-        } else {
-            openScale = 0.8; // 電腦版開盒也稍微拉遠，避免視覺壓迫
-        }
+        rotateX = 0; rotateY = 20;
     } else {
         box.classList.remove('open');
-        rotateX = -10; 
-        rotateY = 20;
-        openScale = 1; // 關盒時恢復 1:1 比例
+        // 重置位移與縮放，回到封面視角
+        rotateX = -10; rotateY = 20;
+        translateX = 0; translateY = 0;
+        userScale = 1;
     }
     updateTransform();
 }
 
-window.addEventListener('resize', updateTransform);
+// 點擊事件：如果沒有大幅拖動則視為點擊
+let moveAmount = 0;
+window.addEventListener('touchstart', (e) => { moveAmount = 0; startAction(e); }, {passive: false});
+window.addEventListener('touchmove', (e) => { 
+    moveAmount += 1; 
+    moveAction(e); 
+    e.preventDefault(); // 防止手機網頁跟著捲動
+}, {passive: false});
+window.addEventListener('touchend', (e) => {
+    if (moveAmount < 5) toggleBox();
+    endAction(e);
+});
+
+// 滑鼠支援 (PC)
 window.addEventListener('mousedown', startAction);
 window.addEventListener('mousemove', moveAction);
-window.addEventListener('mouseup', endAction);
-window.addEventListener('touchstart', startAction, {passive: false});
-window.addEventListener('touchmove', moveAction, {passive: false});
-window.addEventListener('touchend', endAction);
+window.addEventListener('mouseup', (e) => {
+    // 滑鼠沒動才觸發開盒
+    toggleBox();
+    endAction(e);
+});
 
+window.addEventListener('resize', updateTransform);
 updateTransform();
     </script>
 </body>
