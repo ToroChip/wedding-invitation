@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Switch 2 our Wedding </title>
+    <title>Switch 2 our Wedding</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -26,9 +26,24 @@
             perspective: 3500px; 
             user-select: none;
             touch-action: none;
+            position: fixed;
+            width: 100%;
         }
 
         .pixel-font { font-family: 'Press Start 2P', cursive; }
+
+        /* --- 提示文字動畫 --- */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
+            40% {transform: translateX(-50%) translateY(-10px);}
+            60% {transform: translateX(-50%) translateY(-5px);}
+        }
+
+        .hide-hint {
+            opacity: 0 !important;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
 
         #scene {
             width: var(--box-w);
@@ -75,7 +90,6 @@
             z-index: 2;
         }
 
-        /* --- QR Code 樣式 --- */
         .front-qr {
             position: absolute;
             bottom: 30px;
@@ -94,25 +108,91 @@
         .front-qr img {
             width: 100%;
             height: 100%;
-            image-rendering: pixelated; /* 讓QR Code看起來更數位風格 */
+            image-rendering: pixelated;
         }
 
+        /* --- 內部說明書區域 (已改為紅底) --- */
         .face-front-inside {
             position: absolute; 
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: #e0e0e0; 
+            background: var(--ns-red); /* 改為紅色 */
             box-sizing: border-box;
             transform: rotateY(180deg) translateZ(1px); 
             backface-visibility: hidden; 
             border-radius: 12px 0 0 12px;
             display: flex; 
             flex-direction: column;
-            padding: 40px;
-            box-shadow: inset 10px 0 30px rgba(0,0,0,0.1);
+            padding: 35px 25px;
+            box-shadow: inset -10px 0 30px rgba(0,0,0,0.2);
             z-index: 1;
         }
 
+        .inside-story {
+            flex: 1; 
+            margin-top: 15px; 
+            overflow-y: auto; 
+            padding-right: 5px;
+        }
+
+        /* 角色卡片樣式 */
+        .player-card {
+            background: white;
+            border-left: 5px solid #333; /* 在紅底上改用深色邊框增加對比 */
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .player-name {
+            font-weight: 900;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .player-skill-label {
+            font-size: 10px;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: var(--ns-red);
+            font-weight: bold;
+        }
+
+        .player-desc {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            margin-top: 5px;
+        }
+
+        /* 故事底部的裝飾 */
+        .story-footer {
+            background: rgba(255, 255, 255, 0.1); /* 紅底上改用淺色半透明 */
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px dashed rgba(255,255,255,0.5);
+            color: white;
+        }
+
+        /* 滾動條樣式優化 (適配紅底) */
+        .inside-story::-webkit-scrollbar { width: 4px; }
+        .inside-story::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .inside-story::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+
+        /* --- 盒子側面與背面 --- */
         .front-banner { height: 75px; background-color: var(--ns-red); display: flex; align-items: center; padding: 0 20px; color: white; }
         .front-art { flex: 1; background: radial-gradient(circle at center, #fff 0%, #f0f0f0 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 
@@ -153,7 +233,6 @@
             box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
         }
 
         .face-inner-base {
@@ -161,7 +240,6 @@
             background-color: #1a1a1a; 
             background-size: cover; 
             background-position: center; 
-            background-repeat: no-repeat;
             transform: translateZ(calc(var(--case-depth) * -0.999));
             border-radius: 0 12px 12px 0;
         }
@@ -171,7 +249,7 @@
             width: 280px; height: 190px;
             background: #2a2a2a;
             left: calc(50% - 140px); 
-		 top: 25%;
+            top: 25%;
             border-radius: 10px;
             transform: translateZ(calc(var(--case-depth) * -0.8));
             transition: transform 0.6s 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -184,239 +262,284 @@
         }
         
         @media (max-width: 600px) {
-		.cartridge {
-               top: 120px; /* 專門給手機版的數值，讓它避開照片核心區域 */
-		}
+            .cartridge { top: 120px; }
             .open .cartridge {
-			/* 這是開盒後彈出來的位置，如果覺得擋到字，也可以在這裡微調 translateY */
                 transform: translateZ(250px) translateY(-220px) scale(1.1) rotateX(-5deg) !important;
             }
         }
 
         .v2-label { width: 100%; height: 100%; background: linear-gradient(135deg, var(--ns-red) 0%, #a00000 100%); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
 
-        .inside-story {
-            flex: 1; border: 2px dashed #aaa; border-radius: 8px; margin-top: 20px; padding: 20px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.5);
-        }
+        /* QR Code 在按住時縮小 */
+        .front-qr a:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div id="scene">
-        <div class="game-box" id="box">
-            <div class="face side-spine">
-                <div class="spine-logo pixel-font">S2</div>
-                <div class="spine-title pixel-font">OUR WEDDING ADVENTURE</div>
-		     <div style="font-size: 9px; opacity: 0.8; margin-top: auto; width: 100%; text-align: center;">LOVE-0627</div>
-            </div>
-            
-            <div class="face side-right"></div>
-            <div class="face side-top"></div>
-            <div class="face side-bottom"></div>
+<div id="hint-text" class="pixel-font" style="
+    position: absolute; 
+    top: 15%; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    color: white; 
+    font-size: 14px; 
+    text-align: center; 
+    z-index: 1000; 
+    animation: bounce 2s infinite;
+    text-shadow: 2px 2px #000;
+    pointer-events: none;
+">
+    ▲ CLICK OR DRAG TO OPEN ▲
+</div>
 
-            <div class="face face-back">
-                <div class="pixel-font" style="font-size: 12px; margin-bottom: 15px;">► MULTIPLAYER</div>
-                <div class="screenshot-box" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding2.jpg');"></div>
-                <div class="screenshot-box" style="background: #111; height: auto; min-height: 60px; font-size: 11px; padding: 20px 0; text-align: center; display: flex; align-items: center; justify-content: center;">
-                    「長達 3 年的冒險... 迎來新的挑戰！」
+<div id="scene">
+    <div class="game-box" id="box">
+        <div class="face side-spine">
+            <div class="spine-logo pixel-font">S2</div>
+            <div class="spine-title pixel-font">OUR WEDDING ADVENTURE</div>
+            <div style="font-size: 9px; opacity: 0.8; margin-top: auto; width: 100%; text-align: center;">LOVE-0627</div>
+        </div>
+        
+        <div class="face side-right"></div>
+        <div class="face side-top"></div>
+        <div class="face side-bottom"></div>
+
+        <div class="face face-back">
+            <div class="pixel-font" style="font-size: 12px; margin-bottom: 15px;">► MULTIPLAYER</div>
+            <div class="screenshot-box" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding2.jpg');"></div>
+            <div class="screenshot-box" style="background: #111; height: auto; min-height: 60px; font-size: 11px; padding: 20px 0; text-align: center; display: flex; align-items: center; justify-content: center;">
+                「長達 3 年的冒險... 迎來新的挑戰！」
+            </div>
+            <div style="font-size: 13px; line-height: 2.2; margin-top: 20px;">
+                <b style="color: #ffcccc;">【遊戲情報】</b><br>
+                • 遊玩人數： 2 人<br>
+                • 儲存類型： 永久心動<br>
+                • 支援語言： 繁體中文
+            </div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-top: auto;">© 2026 LOVE STUDIO</div>
+        </div>
+
+        <div class="face face-inner-base" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding1.jpg');"></div>
+        
+        <div class="cartridge" id="cart">
+            <div class="v2-label">
+                <div class="pixel-font" style="font-size: 22px; margin-bottom: 8px;">START GAME</div>
+                <div style="background: rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 20px; text-align: center;">
+                    <div style="font-size: 16px; font-weight: bold; line-height: 1.2;">2026.06.27</div>
+                    <div style="font-size: 14px; font-weight: bold; opacity: 0.9; margin-top: 2px;">AM 11:30</div>
                 </div>
-                <div style="font-size: 13px; line-height: 2.2; margin-top: 20px;">
-                    <b style="color: #ffcccc;">【遊戲情報】</b><br>
-                    • 遊玩人數： 2 人<br>
-                    • 儲存類型： 永久心動<br>
-                    • 支援語言： 繁體中文
+                <a href="https://maps.app.goo.gl/mQyuLq6BtiN1x2tv9" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   style="text-decoration: none; color: white; margin-top: 10px; display: flex; align-items: center; gap: 5px;">
+                    <div style="font-size: 13px;">📍 新店彭園會館 1F</div>
+                    <div style="font-size: 10px; background: #fff; color: var(--ns-red); padding: 1px 4px; border-radius: 3px; font-weight: bold;">GO</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="face-front-container">
+            <div class="face-front-outside">
+                <div class="front-banner">
+                    <div class="pixel-font" style="font-size: 22px;">
+                        <span style="border: 3px solid white; padding: 3px 10px; border-radius: 6px; margin-right: 12px;">S</span>WITCH 2
+                    </div>
                 </div>
-                <div style="font-size: 10px; color: rgba(255,255,255,0.5); margin-top: auto;">© 2026 LOVE STUDIO</div>
+                <div class="front-art">
+                    <div class="pixel-font" style="font-size: 12px; color: #aaa; margin-bottom: 10px;">WEDDING QUEST</div>
+                    <div class="pixel-font" style="font-size: 28px; color: var(--ns-red); line-height: 1.4;">STAGE CLEAR!<br>GET MARRIED</div>
+                    <div style="font-size: 70px; margin: 25px 0;">🎮❤️💍</div>
+                    <div style="font-size: 20px; font-weight: 900; color: #333;">郁瑋 & 映萱</div>
+                </div>
+                <div style="position: absolute; bottom: 30px; left: 30px; width: 55px; height: 55px; background: #1a1a1a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;">
+                    <span style="font-size: 8px;">LOVE</span><span style="font-size: 20px; font-weight: bold;">99+</span>
+                </div>
+                <div class="front-qr">
+                    <a href="https://1drv.ms/f/c/5223e1c9648f8c39/IgDSD5jKV6E7TqnxMPd4S9SnAYp9-T5MzwpfAKbUvDDVcD4?e=b0vVUK" target="_blank" rel="noopener noreferrer" style="display: block; cursor: pointer;">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://1drv.ms/f/c/5223e1c9648f8c39/IgDSD5jKV6E7TqnxMPd4S9SnAYp9-T5MzwpfAKbUvDDVcD4?e=b0vVUK" alt="QR Code">
+                    </a>    
+                </div>
             </div>
 
-            <div class="face face-inner-base" style="background-image: url('https://raw.githubusercontent.com/ToroChip/wedding-invitation/refs/heads/main/wedding1.jpg');"></div>
-            
-            <div class="cartridge" id="cart">
-                <div class="v2-label">
-                    <div class="pixel-font" style="font-size: 22px; margin-bottom: 10px;">START GAME</div>
-                    <div style="font-size: 16px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 5px 18px; border-radius: 25px;">2026.06.27</div>
-                    <div style="font-size: 13px; margin-top: 12px;">📍 新店彭園會館 1F</div>
-                </div>
-            </div>
-
-            <div class="face-front-container">
-                <div class="face-front-outside">
-                    <div class="front-banner">
-                        <div class="pixel-font" style="font-size: 22px;">
-                            <span style="border: 3px solid white; padding: 3px 10px; border-radius: 6px; margin-right: 12px;">S</span>WITCH 2
+            <!-- 內部說明書 (紅底版) -->
+            <div class="face-front-inside">
+                <div class="pixel-font" style="font-size: 16px; color: white; text-align: center; letter-spacing: 1px; text-shadow: 2px 2px rgba(0,0,0,0.2);">PLAYER INFO</div>
+                
+                <div class="inside-story">
+                    <!-- Player 1 -->
+                    <div class="player-card">
+                        <div class="player-header">
+                            <span class="player-name">🙋‍♂️ Player 1 (郁瑋)</span>
+                            <span class="player-skill-label">勇者/維修</span>
+                        </div>
+                        <div class="player-desc">
+                            <b>【家具組裝大師】：</b> 無視說明書複雜度，能獨自修復所有鬆動螺絲與搖晃椅子。
                         </div>
                     </div>
-                    <div class="front-art">
-                        <div class="pixel-font" style="font-size: 12px; color: #aaa; margin-bottom: 10px;">WEDDING QUEST</div>
-                        <div class="pixel-font" style="font-size: 28px; color: var(--ns-red); line-height: 1.4;">STAGE CLEAR!<br>GET MARRIED</div>
-                        <div style="font-size: 70px; margin: 25px 0;">🎮❤️💍</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #333;">郁瑋 & 映萱</div>
+
+                    <!-- Player 2 -->
+                    <div class="player-card">
+                        <div class="player-header">
+                            <span class="player-name">🙋‍♀️ Player 2 (映萱)</span>
+                            <span class="player-skill-label">補血/烹飪</span>
+                        </div>
+                        <div class="player-desc">
+                            <b>【絕對領域：食界】：</b> 能發動「空廚料理」組合技，製作出治癒心靈的美味。
+                        </div>
                     </div>
-                    <div style="position: absolute; bottom: 30px; left: 30px; width: 55px; height: 55px; background: #1a1a1a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px;">
-                        <span style="font-size: 8px;">LOVE</span><span style="font-size: 20px; font-weight: bold;">99+</span>
-                    </div>
-                    <div class="front-qr">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com/ToroChip/wedding-invitation" alt="QR Code">
+
+                    <!-- 故事區 (文字改為白色) -->
+                    <div class="story-footer">
+                        <p style="font-size: 13px; margin: 0; line-height: 1.6;">
+                            一段從 2022 年底開始的冒險...<br>
+                            經過練等，我們決定共組家庭，<br>
+                            開啟人生下一階段的<b>全新副本！</b>
+                        </p>
+                        <!-- 裝飾性進度條 -->
+                        <div style="width: 60%; height: 4px; background: rgba(255,255,255,0.2); margin: 10px auto 0; border-radius: 2px; overflow: hidden;">
+                            <div style="width: 80%; height: 100%; background: #fff;"></div>
+                        </div>
+                        <div class="pixel-font" style="font-size: 8px; color: #ffcccc; margin-top: 5px;">LOADING NEXT STAGE...</div>
                     </div>
                 </div>
 
-                <div class="face-front-inside">
-                    <div class="pixel-font" style="font-size: 18px; color: var(--ns-red); text-align: center;">PLAYER INFO</div>
-                    <div class="inside-story">
-                        <div style="font-size: 14px; color: #444; line-height: 1.8; text-align: center;">
-                            <p><b>Player 1 (Groom)</b><br>角色技能：【家具組裝大師】 (IKEA Conqueror)：無視說明書的複雜度，能獨自修復所有鬆動的螺絲與搖晃的椅子。</p>
-                            <p><b>Player 2 (Bride)</b><br>角色技能：【絕對領域：食界】(Culinary Domain)：能與勇者共同發動「空廚料理」組合技，製作出治癒心靈的美味。</p>
-                            <hr style="width: 100%; border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
-                            <p style="font-size: 12px;">這是一段從 2022 年底開始的長途冒險...<br>經過練等與冒險，我們決定共組家庭，<br>開啟人生下一階段的全新副本！</p>
-                        </div>
-                    </div>
-                    <div class="pixel-font" style="font-size: 10px; color: #999; margin-top: 20px; text-align: center;">
-                        INSERT COIN TO CONTINUE
-                    </div>
+                <div class="pixel-font" style="font-size: 10px; color: rgba(255,255,255,0.7); margin-top: 15px; text-align: center; flex-shrink: 0;">
+                    INSERT COIN TO CONTINUE
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-const scene = document.getElementById('scene');
-const box = document.getElementById('box');
-let isOpened = false;
+<script>
+    const scene = document.getElementById('scene');
+    const box = document.getElementById('box');
+    const hint = document.getElementById('hint-text');
+    let isOpened = false;
 
-// 變換數值
-let rotateX = -10, rotateY = 20;
-let translateX = 0, translateY = 0;
-let userScale = 1;
+    let rotateX = -10, rotateY = 20;
+    let translateX = 0, translateY = 0;
+    let userScale = 1;
 
-// 狀態追蹤
-let isDragging = false;
-let startX, startY;
-let initialPinchDist = 0;
-let initialScale = 1;
+    let isDragging = false;
+    let startX, startY;
+    let moveAmount = 0;      
+    let touchStartTime = 0;  
+    let initialPinchDist = 0;
+    let initialScale = 1;
 
-// 基礎縮放（適配不同螢幕）
-function getBaseScale() {
-    const screenWidth = window.innerWidth;
-    return screenWidth < 600 ? Math.min(0.85, (screenWidth / 450)) : 1;
-}
-
-function updateTransform() {
-    const base = getBaseScale();
-    // 組合所有變換：基礎縮放 * 使用者縮放 + 位移 + 旋轉
-    scene.style.transform = `
-        scale(${base * userScale}) 
-        translate3d(${translateX}px, ${translateY}px, 0)
-        rotateX(${rotateX}deg) 
-        rotateY(${rotateY}deg)
-    `;
-}
-
-// 計算兩指間距
-const getPinchDist = (touches) => {
-    return Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
-};
-
-const startAction = (e) => {
-    isDragging = true;
-    const touches = e.touches;
-
-    if (touches && touches.length === 2) {
-        // 雙指縮放開始
-        initialPinchDist = getPinchDist(touches);
-        initialScale = userScale;
-    } else {
-        // 單指開始
-        startX = (e.pageX || touches?.[0].pageX);
-        startY = (e.pageY || touches?.[0].pageY);
+    function getBaseScale() {
+        const screenWidth = window.innerWidth;
+        return screenWidth < 600 ? Math.min(0.85, (screenWidth / 450)) : 1;
     }
-};
 
-const moveAction = (e) => {
-    if (!isDragging) return;
-    const touches = e.touches;
+    function updateTransform() {
+        const base = getBaseScale();
+        scene.style.transform = `
+            scale(${base * userScale}) 
+            translate3d(${translateX}px, ${translateY}px, 0)
+            rotateX(${rotateX}deg) 
+            rotateY(${rotateY}deg)
+        `;
+    }
 
-    if (touches && touches.length === 2) {
-        // --- 雙指縮放邏輯 ---
-        const currentDist = getPinchDist(touches);
-        const diff = currentDist / initialPinchDist;
-        userScale = Math.max(0.5, Math.min(3, initialScale * diff)); // 限制縮放範圍 0.5x ~ 3x
-    } else {
-        // --- 單指邏輯 ---
-        const x = (e.pageX || touches?.[0].pageX);
-        const y = (e.pageY || touches?.[0].pageY);
-        const dx = x - startX;
-        const dy = y - startY;
+    const getPinchDist = (touches) => {
+        return Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+    };
 
-        if (isOpened) {
-            // 開盒後：平移 (平移量根據縮放比例調整，讓拖動感更自然)
-            translateX += dx / userScale;
-            translateY += dy / userScale;
+    const startAction = (e) => {
+        isDragging = true;
+        moveAmount = 0;
+        touchStartTime = Date.now();
+        const touches = e.touches;
+
+        if (touches && touches.length === 2) {
+            initialPinchDist = getPinchDist(touches);
+            initialScale = userScale;
         } else {
-            // 關盒時：旋轉
-            rotateY += dx * 0.5;
-            rotateX -= dy * 0.5;
-            rotateX = Math.max(-35, Math.min(35, rotateX));
+            startX = (e.pageX || touches?.[0].pageX);
+            startY = (e.pageY || touches?.[0].pageY);
         }
-        startX = x;
-        startY = y;
+    };
+
+    const moveAction = (e) => {
+        if (!isDragging) return;
+        moveAmount++;
+        const touches = e.touches;
+
+        if (touches && touches.length === 2) {
+            const currentDist = getPinchDist(touches);
+            const diff = currentDist / initialPinchDist;
+            userScale = Math.max(0.5, Math.min(3, initialScale * diff)); 
+        } else {
+            const x = (e.pageX || touches?.[0].pageX);
+            const y = (e.pageY || touches?.[0].pageY);
+            const dx = x - startX;
+            const dy = y - startY;
+
+            if (isOpened) {
+                translateX += dx / userScale;
+                translateY += dy / userScale;
+            } else {
+                rotateY += dx * 0.5;
+                rotateX -= dy * 0.5;
+                rotateX = Math.max(-35, Math.min(35, rotateX));
+            }
+            startX = x;
+            startY = y;
+        }
+        updateTransform();
+    };
+
+    const endAction = (e) => {
+        if (e.touches && e.touches.length > 0) {
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+            return;
+        }
+        isDragging = false;
+    };
+
+    function toggleBox() {
+        isOpened = !isOpened;
+        if (isOpened) {
+            box.classList.add('open');
+            rotateX = 0; rotateY = 20;
+            if (hint) hint.classList.add('hide-hint');
+        } else {
+            box.classList.remove('open');
+            rotateX = -10; rotateY = 20;
+            translateX = 0; translateY = 0;
+            userScale = 1;
+        }
+        updateTransform();
     }
+
+    window.addEventListener('touchstart', startAction, {passive: false});
+    window.addEventListener('touchmove', (e) => { 
+        moveAction(e); 
+        if (e.cancelable) e.preventDefault(); 
+    }, {passive: false});
+
+    window.addEventListener('touchend', (e) => {
+        const touchDuration = Date.now() - touchStartTime;
+        if (moveAmount < 10 && touchDuration < 100) {
+            toggleBox();
+        }
+        endAction(e);
+    }, {passive: false});
+
+    window.addEventListener('mousedown', startAction);
+    window.addEventListener('mousemove', moveAction);
+    window.addEventListener('mouseup', (e) => {
+        if (moveAmount < 5) {
+            toggleBox();
+        }
+        endAction(e);
+    });
+
+    window.addEventListener('resize', updateTransform);
     updateTransform();
-};
-
-const endAction = (e) => {
-    if (e.touches && e.touches.length > 0) {
-        // 如果還有一隻手指在上面，重置起始點避免跳動
-        startX = e.touches[0].pageX;
-        startY = e.touches[0].pageY;
-        return;
-    }
-    isDragging = false;
-    // 點擊判定（位移極小時觸發開關）
-    // 這裡我們簡化處理，實際點擊開關交給 box 的 click 事件或特定按鈕
-};
-
-// 為了避免拖動與點擊衝突，我們把 toggleBox 綁定在特定的點擊邏輯上
-function toggleBox() {
-    isOpened = !isOpened;
-    if (isOpened) {
-        box.classList.add('open');
-        rotateX = 0; rotateY = 20;
-    } else {
-        box.classList.remove('open');
-        // 重置位移與縮放，回到封面視角
-        rotateX = -10; rotateY = 20;
-        translateX = 0; translateY = 0;
-        userScale = 1;
-    }
-    updateTransform();
-}
-
-// 點擊事件：如果沒有大幅拖動則視為點擊
-let moveAmount = 0;
-window.addEventListener('touchstart', (e) => { moveAmount = 0; startAction(e); }, {passive: false});
-window.addEventListener('touchmove', (e) => { 
-    moveAmount += 1; 
-    moveAction(e); 
-    e.preventDefault(); // 防止手機網頁跟著捲動
-}, {passive: false});
-window.addEventListener('touchend', (e) => {
-    if (moveAmount < 5) toggleBox();
-    endAction(e);
-});
-
-// 滑鼠支援 (PC)
-window.addEventListener('mousedown', startAction);
-window.addEventListener('mousemove', moveAction);
-window.addEventListener('mouseup', (e) => {
-    // 滑鼠沒動才觸發開盒
-    toggleBox();
-    endAction(e);
-});
-
-window.addEventListener('resize', updateTransform);
-updateTransform();
-    </script>
+</script>
 </body>
 </html>
