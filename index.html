@@ -522,7 +522,7 @@
 
     window.addEventListener('touchend', (e) => {
         const touchDuration = Date.now() - touchStartTime;
-        if (moveAmount < 10 && touchDuration < 100) {
+        if (moveAmount < 10 && touchDuration < 50) {
             toggleBox();
         }
         endAction(e);
