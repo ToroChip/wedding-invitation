@@ -520,10 +520,27 @@
         if (e.cancelable) e.preventDefault(); 
     }, {passive: false});
 
-    window.addEventListener('touchend', (e) => {
+window.addEventListener('touchend', (e) => {
         const touchDuration = Date.now() - touchStartTime;
-        if (moveAmount < 10 && touchDuration < 50) {
+        
+        // 偵測是否為 iOS 裝置 (iPhone / iPad)
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        // 動態設定時間門檻：iOS 給予較長判定時間，Android 維持 50ms
+        const timeThreshold = isIOS ? 250 : 50;
+
+        // 如果還有手指在螢幕上（例如多指縮放中），則不觸發點擊
+        if (e.touches.length > 0) return;
+
+        // 點擊判定：移動距離極小且觸碰時間短於門檻
+        if (moveAmount < 10 && touchDuration < timeThreshold) {
+            // 如果點擊的是 QR Code 或地圖連結，則交由瀏覽器跳轉，不觸發盒子開關
+            if (e.target.closest('a')) return;
+            
             toggleBox();
+            
+            // 防止 iOS 觸發預設的縮放或延遲點擊行為
+            if (e.cancelable) e.preventDefault();
         }
         endAction(e);
     }, {passive: false});
