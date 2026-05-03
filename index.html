@@ -32,10 +32,17 @@
 
         .pixel-font { font-family: 'Press Start 2P', cursive; }
 
+        /* 提示文字動畫 */
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
             40% {transform: translateX(-50%) translateY(-10px);}
             60% {transform: translateX(-50%) translateY(-5px);}
+        }
+
+        /* 鎖定文字閃爍動畫 */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
 
         .hide-hint {
@@ -373,12 +380,13 @@
                         <div class="player-header">
                             <div>
                                 <span class="player-name">🙋‍♂️ Player 1 (郁瑋)</span>
-                                <div class="parent-info">引路導師：謝○○ & ○ ○○</div>
+                                <div class="parent-info">引路導師：黃建忠 & 陳敏妃</div>
                             </div>
-                            <span class="player-skill-label">勇者/維修</span>
+                            <span class="player-skill-label">勇者/守護</span>
                         </div>
                         <div class="player-desc">
-                            <b>【家具組裝大師】：</b> 無視說明書複雜度，能獨自修復所有鬆動螺絲與搖晃椅子。
+                            <b>【理性分析】：</b> 吵架時嘗試講道理（成功率不一定）<br>
+                            <b>【自動道歉】：</b> 有時候會觸發（冷卻中）
                         </div>
                     </div>
 
@@ -386,33 +394,41 @@
                         <div class="player-header">
                             <div>
                                 <span class="player-name">🙋‍♀️ Player 2 (映萱)</span>
-                                <div class="parent-info">引路導師：蕭○○ & ○ ○○</div>
+                                <div class="parent-info">引路導師：童素芳</div>
                             </div>
-                            <span class="player-skill-label">補血/烹飪</span>
+                            <span class="player-skill-label">輔助/療癒</span>
                         </div>
                         <div class="player-desc">
-                            <b>【絕對領域：食界】：</b> 能發動「空廚料理」組合技，製作出治癒心靈的美味。
+                            <b>【撒嬌暴擊】：</b> 對指定對象效果顯著 <br>
+                            <b>【吃貨模式】：</b> 任何餐廳都可以很開心
                         </div>
                     </div>
 
                     <div class="story-footer">
                         <p style="font-size: 13px; margin: 0; line-height: 1.6;">
-                            一段從 2022 年底開始的冒險...<br>
-                            經過練等，我們決定共組家庭，<br>
-                            開啟人生下一階段的<b>全新副本！</b>
+					  這場從 2022 年底啟動的冒險，已寫下無數精彩篇章。<br>
+					  夥伴關係達成上限，我們決定將關係轉職為「伴侶」，<br>
+					  解鎖主線劇情：<b>共同經營的未來世界</b>！
                         </p>
-                        <div style="width: 60%; height: 4px; background: rgba(255,255,255,0.2); margin: 10px auto 0; border-radius: 2px; overflow: hidden;">
-                            <div style="width: 80%; height: 100%; background: #fff;"></div>
-                        </div>
-                        <div class="pixel-font" style="font-size: 8px; color: #ffcccc; margin-top: 5px;">LOADING NEXT STAGE...</div>
                     </div>
                 </div>
 
                 <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 10px; text-align: center;">
                     BGM: 8-bit Game by butterflystudio
                 </div>
-                <div class="pixel-font" style="font-size: 10px; color: rgba(255,255,255,0.7); margin-top: 10px; text-align: center; flex-shrink: 0;">
-                    INSERT COIN TO CONTINUE
+                
+                <!-- 修改後的玩家鎖定文字 -->
+                <div style="
+                    font-size: 12px; 
+                    color: #fff; 
+                    margin-top: 10px; 
+                    text-align: center; 
+                    flex-shrink: 0;
+                    font-weight: bold;
+                    animation: blink 1s infinite;
+                    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+                ">
+                    🔒 此玩家已被套牢，無法重新選擇
                 </div>
             </div>
         </div>
@@ -511,7 +527,6 @@
 
     function toggleBox() {
         if (!isOpened) {
-            // 嘗試播放音樂
             bgm.volume = 0.5;
             bgm.play().catch(e => console.log("Audio playback blocked by browser"));
             
